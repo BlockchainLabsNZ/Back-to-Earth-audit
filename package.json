@@ -1,0 +1,17 @@
+{
+  "name": "BackToEarthToken",
+  "version": "1.0.0",
+  "description": "Implementation of a ERC23 Token",
+  "main": "truffle.js",
+  "author": "Isaac Payne <isaac@3months.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn truffle compile",
+    "deploy": "yarn truffle migrate",
+    "test": "yarn truffle test"
+  },
+  "dependencies": {
+    "bignumber.js": "^4.0.2",
+    "truffle": "^3.2.4"
+  }
+}
