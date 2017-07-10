@@ -1,49 +1,102 @@
-let MiniMeTokenFactory = artifacts.require("MiniMeTokenFactory");
-let LeanContribution = artifacts.require("LeanContribution");
-let MSP = artifacts.require("MSP");
+let GTKT = artifacts.require("StandardMintableToken");
 
-const assertFail = require("./helpers/assertFail");
+const assertFail = require("../helpers/assertFail");
 
-let msp;
-let contribution;
+let gtkt;
 
-contract("MSP", function(accounts) {
+contract("GTKT", function(accounts) {
   beforeEach(async () => {
-    let miniMeTokenFactory = await MiniMeTokenFactory.new({
+
+    frozen120addr = accounts[4];
+    frozen365addr = accounts[5];
+    gtkt = await GTKT.new(
+        "Gold Ticket",               // the token name
+        8,             // amount of decimal places in the token
+        "GTKT",             // the token symbol
+        100000000000000000000           // the initial distro amount
+        );
+
+    await gtkt.transfer(accounts[1], 50000, {
       from: accounts[0]
     });
-    msp = await MSP.new(miniMeTokenFactory.address, { from: accounts[0] });
-    await msp.enableTransfers(true, { from: accounts[0] });
-    msp.generateTokens(accounts[0], 50100);
-    msp.generateTokens(accounts[1], 50100);
-    contribution = await LeanContribution.new();
+
+    await gtkt.transfer(accounts[2], 50000, {
+      from: accounts[0]
+    });
+
   });
 
-  it("Controler and only controler can burn", async () => {
-    assert.equal((await msp.balanceOf.call(accounts[0])).toNumber(), 50100);
-    await msp.destroyTokens(accounts[0], 100);
-    assert.equal((await msp.balanceOf.call(accounts[0])).toNumber(), 50000);
-
-    await msp.changeController(contribution.address);
-    await msp.changeBurner(accounts[1]);
-    await contribution.initialize(msp.address);
-
-    await assertFail(async () => {
-      await msp.destroyTokens(accounts[0], 50000);
+  /*
+  * Burn you own
+  */
+  it("User can burn their own tokens", async () => {
+    await gtkt.burn(50000, {
+      from: accounts[0]
     });
-    assert.equal((await msp.balanceOf.call(accounts[0])).toNumber(), 50000);
+    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 99999999999999850000);
   });
 
-  it("Burner can also burn it's own tokens", async () => {
-    await msp.changeController(contribution.address);
-    await contribution.initialize(msp.address);
+  it("User shouldn't be able to burn more tokens than they have", async () => {
+    await assertFail(async () => {
+      await gtkt.burn(100000000000000000001, {
+        from: accounts[0]
+      });
+    });
+  });
 
-    await msp.destroyTokens(accounts[0], 50100);
-    assert.equal((await msp.balanceOf.call(accounts[0])).toNumber(), 0);
+  it("User shouldn't be able to double burn their tokens", async () => {
+    await gtkt.burn(99999999999999900000, {
+      from: accounts[0]
+    });
+
+    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 0);
+    await assertFail(async () => {
+      await gtkt.burn(99999999999999900000, {
+        from: accounts[0]
+      });
+    });
+  });
+
+  /*
+  * Burn others
+  */
+  it("User can also burn allowed tokens", async () => {
+    await gtkt.approve(accounts[1], 50000, {
+      from: accounts[0]
+    });
+
+    assert.equal((await gtkt.allowance(accounts[0], accounts[1])).toNumber(), 50000);
+
+    await gtkt.burnFrom(accounts[0], 50000, { 
+      from: accounts[1]
+    });
+    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 99999999999999850000);
+  });
+
+  it("User shouldn't be able to double burn allowed tokens", async () => {
+    await gtkt.approve(accounts[1], 50000, {
+      from: accounts[0]
+    });
+
+    assert.equal((await gtkt.allowance(accounts[0], accounts[1])).toNumber(), 50000);
+
+    await gtkt.burnFrom(accounts[0], 50000, { 
+      from: accounts[1]
+    });
+    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 99999999999999850000);
 
     await assertFail(async () => {
-      await msp.destroyTokens(accounts[1], 50100);
+      await gtkt.burnFrom(accounts[0], 50000, { 
+        from: accounts[1]
+      });
     });
-    assert.equal((await msp.balanceOf.call(accounts[1])).toNumber(), 50100);
+  });
+
+  it("User should not be able to burn tokens unless they're allowed to", async () => {
+    await assertFail(async () => {
+      await gtkt.burnFrom(accounts[0], 50000, { 
+        from: accounts[1]
+      });
+    });
   });
 });

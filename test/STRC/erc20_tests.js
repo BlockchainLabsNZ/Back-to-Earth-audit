@@ -68,13 +68,13 @@ contract("STRC", function(accounts) {
 
   // APPROVALS
   it("approvals: msg.sender should approve 100 to accounts[1]", async () => {
-    //watcher = strc.Approval();
+    watcher = strc.Approval();
     await strc.approve(accounts[1], 100, { from: accounts[0] });
-    //let logs = watcher.get();
-    //assert.equal(logs[0].event, "Approval");
-    //assert.equal(logs[0].args._owner, accounts[0]);
-    //assert.equal(logs[0].args._spender, accounts[1]);
-    //assert.strictEqual(logs[0].args._amount.toNumber(), 100);
+    let logs = watcher.get();
+    assert.equal(logs[0].event, "Approval");
+    assert.equal(logs[0].args._owner, accounts[0]);
+    assert.equal(logs[0].args._spender, accounts[1]);
+    assert.strictEqual(logs[0].args._amount.toNumber(), 100);
 
     assert.strictEqual(
       (await strc.allowance.call(accounts[0], accounts[1])).toNumber(),
