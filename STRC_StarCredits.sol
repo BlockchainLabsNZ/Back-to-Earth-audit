@@ -60,9 +60,6 @@ contract StandardToken is owned{
 
     /* This generates a public event on the blockchain that will notify clients */
     event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /* This notifies clients about the amount burnt */
-    event Burn(address indexed from, uint256 value);
     
     /* This generates a public event on the blockchain that will notify clients */
     event FrozenFunds(address target, bool frozen);
@@ -156,7 +153,7 @@ contract StandardToken is owned{
         if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
         balanceOf[msg.sender] -= _value;                      // Subtract from the sender
         totalSupply -= _value;                                // Updates totalSupply
-        Burn(msg.sender, _value);
+        Transfer(msg.sender,0, _value);
         return true;
     }
 
@@ -167,7 +164,7 @@ contract StandardToken is owned{
         balanceOf[_from] -= _value;                          // Subtract from the sender
         allowance[_from][msg.sender] -= _value;
         totalSupply -= _value;                               // Updates totalSupply
-        Burn(_from, _value);
+        Transfer(_from, 0, _value);
         return true;
     }
 
