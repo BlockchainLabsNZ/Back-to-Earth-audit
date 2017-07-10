@@ -101,6 +101,7 @@ contract StandardToken is owned{
 
     /* Send tokens */
     function transfer(address _to, uint256 _value) {
+        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough
         if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows
         if (frozenAccount[msg.sender]) throw;                // Check if sender is frozen
@@ -151,6 +152,7 @@ contract StandardToken is owned{
     
     /* A function to burn tokens and remove from supply */
     function burn(uint256 _value) returns (bool success)  {
+        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
         balanceOf[msg.sender] -= _value;                      // Subtract from the sender
         totalSupply -= _value;                                // Updates totalSupply
@@ -158,10 +160,12 @@ contract StandardToken is owned{
         return true;
     }
 
-    function burnFrom(address _from, uint256 _value) returns (bool success)  {
+    function burnFrom(address _from, uint256 _value) onlyOwner returns (bool success)  {
+        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[_from] < _value) throw;                // Check if the sender has enough
         if (_value > allowance[_from][msg.sender]) throw;    // Check allowance
         balanceOf[_from] -= _value;                          // Subtract from the sender
+        allowance[_from][msg.sender] -= _value;
         totalSupply -= _value;                               // Updates totalSupply
         Burn(_from, _value);
         return true;
