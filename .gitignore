@@ -1,5 +1,8 @@
 *.pdf
+<<<<<<< HEAD
  
 build/
+=======
+>>>>>>> 6e4cfa6be809b7929aa96a9a4d399523a0eda2c5
 
 node_modules/
