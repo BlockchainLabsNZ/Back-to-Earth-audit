@@ -63,7 +63,9 @@ contract StandardToken is owned{
     
     /* This generates a public event on the blockchain that will notify clients */
     event FrozenFunds(address target, bool frozen);
-    
+
+    /* This generates a public event on the blockchain that will notify clients */
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 
     /* Initializes contract with entire supply of tokens assigned to our distro accounts */
     function StandardToken(
@@ -97,7 +99,7 @@ contract StandardToken is owned{
     }
 
     /* Send tokens */
-    function transfer(address _to, uint256 _value) {
+    function transfer(address _to, uint256 _value) returns (bool success){
         if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough
         if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows
@@ -106,12 +108,14 @@ contract StandardToken is owned{
         balanceOf[msg.sender] -= _value;                     // Subtract from the sender
         balanceOf[_to] += _value;                            // Add the same to the recipient
         Transfer(msg.sender, _to, _value);                   // Notify anyone listening that this transfer took place
+        return true;
     }
 
     /* Allow another contract to spend some tokens on your behalf */
     function approve(address _spender, uint256 _value)
         returns (bool success) {
         allowance[msg.sender][_spender] = _value;
+		Approval(msg.spender, _spender, _value)
         return true;
     }
 
@@ -149,6 +153,7 @@ contract StandardToken is owned{
     
     /* A function to burn tokens and remove from supply */
     function burn(uint256 _value) returns (bool success)  {
+		if (frozenAccount[msg.sender]) throw;                        	// Check if sender frozen       
         if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
         balanceOf[msg.sender] -= _value;                      // Subtract from the sender
@@ -158,6 +163,8 @@ contract StandardToken is owned{
     }
 
     function burnFrom(address _from, uint256 _value) onlyOwner returns (bool success)  {
+        if (frozenAccount[msg.sender]) throw;                        // Check if sender frozen       
+        if (frozenAccount[_from]) throw;                          // Check if recipient frozen 
         if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[_from] < _value) throw;                // Check if the sender has enough
         if (_value > allowance[_from][msg.sender]) throw;    // Check allowance
