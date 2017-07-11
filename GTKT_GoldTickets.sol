@@ -90,8 +90,8 @@ contract StandardMintableToken is owned{
     /* Allow another contract to spend some tokens on your behalf */
     function approve(address _spender, uint256 _value)
         returns (bool success) {
-        allowance[msg.sender][_spender] = _value;
-		Approval(msg.spender, _spender, _value)
+        allowance[msg.sender][_spender] = _value;            // Update allowance first
+        Approval(msg.spender, _spender, _value);             // Notify of new Approval
         return true;
     }
 
@@ -114,42 +114,41 @@ contract StandardMintableToken is owned{
         if (_value > allowance[_from][msg.sender]) throw;       // Check allowance
         balanceOf[_from] -= _value;                             // Subtract from the sender
         balanceOf[_to] += _value;                               // Add the same to the recipient
-        allowance[_from][msg.sender] -= _value;
-        Transfer(_from, _to, _value);
+        allowance[_from][msg.sender] -= _value;                 // Update sender's allowance 
+        Transfer(_from, _to, _value);                           // Perform the transfer
         return true;
     }
     
     /* A function to freeze or un-freeze accounts, to and from */
     
     function freezeAccount(address target, bool freeze ) onlyOwner {    
-        frozenAccount[target] = freeze;                                 // set the array object to the value of bool freeze
-        FrozenFunds(target, freeze);                                    // notify event
+        frozenAccount[target] = freeze;                       // set the array object to the value of bool freeze
+        FrozenFunds(target, freeze);                          // notify event
     }
     
 
     /* A function to burn tokens and remove from supply */
     
-    function burn(uint256 _value) returns (bool success) {
-        if (frozenAccount[msg.sender]) throw;                        // Check if sender frozen       
-
-        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
+    function burn(uint256 _value) returns (bool success) 
+        if (frozenAccount[msg.sender]) throw;                 // Check if sender frozen       
+        if (_value == 0) throw; 				              // Don't waste gas on zero-value transaction
         if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
         balanceOf[msg.sender] -= _value;                      // Subtract from the sender
         totalSupply -= _value;                                // Updates totalSupply
-        Transfer(msg.sender,0, _value);
+        Transfer(msg.sender,0, _value);	                      // Burn _value tokens
         return true;
     }
 
     function burnFrom(address _from, uint256 _value) onlyOwner returns (bool success) {
-        if (frozenAccount[msg.sender]) throw;                        // Check if sender frozen       
-        if (frozenAccount[_from]) throw;                          // Check if recipient frozen 
+        if (frozenAccount[msg.sender]) throw;                // Check if sender frozen       
+        if (frozenAccount[_from]) throw;                     // Check if recipient frozen 
         if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
         if (balanceOf[_from] < _value) throw;                // Check if the sender has enough
         if (_value > allowance[_from][msg.sender]) throw;    // Check allowance
         balanceOf[_from] -= _value;                          // Subtract from the sender
         totalSupply -= _value;                               // Updates totalSupply
         allowance[_from][msg.sender] -= _value;				 // Updates allowance
-        Transfer(_from, 0, _value);
+        Transfer(_from, 0, _value);                          // Burn tokens by Transfer to incinerator
         return true;
     }
     

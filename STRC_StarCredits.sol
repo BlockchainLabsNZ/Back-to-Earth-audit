@@ -8,14 +8,14 @@ pragma solidity ^0.4.8;
 
 /* Contract provides functions so only contract owner can execute a function */
 contract owned {
-    address public owner; //the contract owner
+    address public owner;                                    //the contract owner
 
     function owned() {
-        owner = msg.sender; //constructor initializes the creator as the owner on initialization
+        owner = msg.sender;                                  //constructor initializes the creator as the owner on initialization
     }
 
     modifier onlyOwner {
-        if (msg.sender != owner) throw; // functions with onlyOwner will throw an exception if not the contract owner
+        if (msg.sender != owner) throw;                      // functions with onlyOwner will throw an exception if not the contract owner
         _;
     }
 
@@ -115,7 +115,7 @@ contract StandardToken is owned{
     function approve(address _spender, uint256 _value)
         returns (bool success) {
         allowance[msg.sender][_spender] = _value;
-		Approval(msg.spender, _spender, _value)
+        Approval(msg.spender, _spender, _value);
         return true;
     }
 
@@ -138,8 +138,8 @@ contract StandardToken is owned{
         if (_value > allowance[_from][msg.sender]) throw;       // Check allowance
         balanceOf[_from] -= _value;                             // Subtract from the sender
         balanceOf[_to] += _value;                               // Add the same to the recipient
-        allowance[_from][msg.sender] -= _value;
-        Transfer(_from, _to, _value);
+        allowance[_from][msg.sender] -= _value;                 // Allowance changes
+        Transfer(_from, _to, _value);                           // Tokens are send
         return true;
     }
     
@@ -153,24 +153,24 @@ contract StandardToken is owned{
     
     /* A function to burn tokens and remove from supply */
     function burn(uint256 _value) returns (bool success)  {
-		if (frozenAccount[msg.sender]) throw;                        	// Check if sender frozen       
-        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
-        if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
-        balanceOf[msg.sender] -= _value;                      // Subtract from the sender
-        totalSupply -= _value;                                // Updates totalSupply
-        Transfer(msg.sender,0, _value);
+		if (frozenAccount[msg.sender]) throw;                  // Check if sender frozen       
+        if (_value == 0) throw; 				               // Don't waste gas on zero-value transaction
+        if (balanceOf[msg.sender] < _value) throw;             // Check if the sender has enough
+        balanceOf[msg.sender] -= _value;                       // Subtract from the sender
+        totalSupply -= _value;                                 // Reduce totalSupply accordingly
+        Transfer(msg.sender,0, _value);                        // Burn baby burn
         return true;
     }
 
     function burnFrom(address _from, uint256 _value) onlyOwner returns (bool success)  {
-        if (frozenAccount[msg.sender]) throw;                        // Check if sender frozen       
-        if (frozenAccount[_from]) throw;                          // Check if recipient frozen 
-        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
-        if (balanceOf[_from] < _value) throw;                // Check if the sender has enough
-        if (_value > allowance[_from][msg.sender]) throw;    // Check allowance
-        balanceOf[_from] -= _value;                          // Subtract from the sender
-        allowance[_from][msg.sender] -= _value;
-        totalSupply -= _value;                               // Updates totalSupply
+        if (frozenAccount[msg.sender]) throw;                  // Check if sender frozen       
+        if (frozenAccount[_from]) throw;                       // Check if recipient frozen 
+        if (_value == 0) throw; 				               // Don't waste gas on zero-value transaction
+        if (balanceOf[_from] < _value) throw;                  // Check if the sender has enough
+        if (_value > allowance[_from][msg.sender]) throw;      // Check allowance
+        balanceOf[_from] -= _value;                            // Subtract from the sender
+        allowance[_from][msg.sender] -= _value;                // Allowance is updated
+        totalSupply -= _value;                                 // Updates totalSupply
         Transfer(_from, 0, _value);
         return true;
     }
