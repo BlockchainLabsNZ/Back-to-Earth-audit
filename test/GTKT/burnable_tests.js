@@ -75,6 +75,7 @@ contract("GTKT", function(accounts) {
     await gtkt.burnFrom(accounts[1], 50000, { 
       from: owner
     });
+    
     assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
   });
 
