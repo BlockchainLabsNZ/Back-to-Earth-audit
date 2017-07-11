@@ -4,16 +4,21 @@ const assertFail = require("../helpers/assertFail");
 
 let gtkt;
 
+let owner;
+let frozen120addr;
+let frozen365addr;
+
 contract("GTKT", function(accounts) {
   beforeEach(async () => {
 
+    owner = accounts[0];
     frozen120addr = accounts[4];
     frozen365addr = accounts[5];
     gtkt = await GTKT.new(
-        "Gold Ticket",               // the token name
-        8,             // amount of decimal places in the token
-        "GTKT",             // the token symbol
-        100000000000000000000           // the initial distro amount
+        "Gold Ticket",           // the token name
+        8,                       // amount of decimal places in the token
+        "GTKT",                  // the token symbol
+        10000000000              // the initial distro amount
         );
 
     await gtkt.transfer(accounts[1], 50000, {
@@ -31,28 +36,28 @@ contract("GTKT", function(accounts) {
   */
   it("User can burn their own tokens", async () => {
     await gtkt.burn(50000, {
-      from: accounts[0]
+      from: accounts[1]
     });
-    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 99999999999999850000);
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
   });
 
   it("User shouldn't be able to burn more tokens than they have", async () => {
     await assertFail(async () => {
-      await gtkt.burn(100000000000000000001, {
-        from: accounts[0]
+      await gtkt.burn(99999, {
+        from: accounts[1]
       });
     });
   });
 
   it("User shouldn't be able to double burn their tokens", async () => {
-    await gtkt.burn(99999999999999900000, {
-      from: accounts[0]
+    await gtkt.burn(50000, {
+      from: accounts[1]
     });
 
-    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 0);
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
     await assertFail(async () => {
-      await gtkt.burn(99999999999999900000, {
-        from: accounts[0]
+      await gtkt.burn(50000, {
+        from: accounts[1]
       });
     });
   });
@@ -61,33 +66,33 @@ contract("GTKT", function(accounts) {
   * Burn others
   */
   it("User can also burn allowed tokens", async () => {
-    await gtkt.approve(accounts[1], 50000, {
-      from: accounts[0]
-    });
-
-    assert.equal((await gtkt.allowance(accounts[0], accounts[1])).toNumber(), 50000);
-
-    await gtkt.burnFrom(accounts[0], 50000, { 
+    await gtkt.approve(owner, 50000, {
       from: accounts[1]
     });
-    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 99999999999999850000);
+
+    assert.equal((await gtkt.allowance(accounts[1], owner)).toNumber(), 50000);
+
+    await gtkt.burnFrom(accounts[1], 50000, { 
+      from: owner
+    });
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
   });
 
   it("User shouldn't be able to double burn allowed tokens", async () => {
-    await gtkt.approve(accounts[1], 50000, {
-      from: accounts[0]
-    });
-
-    assert.equal((await gtkt.allowance(accounts[0], accounts[1])).toNumber(), 50000);
-
-    await gtkt.burnFrom(accounts[0], 50000, { 
+    await gtkt.approve(owner, 25000, {
       from: accounts[1]
     });
-    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 99999999999999850000);
+
+    assert.equal((await gtkt.allowance(accounts[1], owner)).toNumber(), 25000);
+
+    await gtkt.burnFrom(accounts[1], 25000, { 
+      from: owner
+    });
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 25000);
 
     await assertFail(async () => {
-      await gtkt.burnFrom(accounts[0], 50000, { 
-        from: accounts[1]
+      await gtkt.burnFrom(accounts[1], 25000, { 
+        from: owner
       });
     });
   });
