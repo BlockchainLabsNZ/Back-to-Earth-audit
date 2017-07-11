@@ -57,7 +57,7 @@ contract StandardMintableToken is owned{
     event FrozenFunds(address target, bool frozen);
     
     /* This generates a public event on the blockchain that will notify clients */
-    event Approval(address indexed _owner, address indexed _spender, uint256 _value)
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     function StandardMintableToken(
@@ -91,7 +91,7 @@ contract StandardMintableToken is owned{
     function approve(address _spender, uint256 _value)
         returns (bool success) {
         allowance[msg.sender][_spender] = _value;            // Update allowance first
-        Approval(msg.spender, _spender, _value);             // Notify of new Approval
+        Approval(msg.sender, _spender, _value);             // Notify of new Approval
         return true;
     }
 
@@ -129,7 +129,7 @@ contract StandardMintableToken is owned{
 
     /* A function to burn tokens and remove from supply */
     
-    function burn(uint256 _value) returns (bool success) 
+    function burn(uint256 _value) returns (bool success) {
         if (frozenAccount[msg.sender]) throw;                 // Check if sender frozen       
         if (_value == 0) throw; 				              // Don't waste gas on zero-value transaction
         if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough

@@ -65,7 +65,7 @@ contract StandardToken is owned{
     event FrozenFunds(address target, bool frozen);
 
     /* This generates a public event on the blockchain that will notify clients */
-    event Approval(address indexed _owner, address indexed _spender, uint256 _value)
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
     /* Initializes contract with entire supply of tokens assigned to our distro accounts */
     function StandardToken(
@@ -115,7 +115,7 @@ contract StandardToken is owned{
     function approve(address _spender, uint256 _value)
         returns (bool success) {
         allowance[msg.sender][_spender] = _value;
-        Approval(msg.spender, _spender, _value);
+        Approval(msg.sender, _spender, _value);
         return true;
     }
 
