@@ -74,7 +74,7 @@ contract("STRC", function(accounts) {
     assert.equal(logs[0].event, "Approval");
     assert.equal(logs[0].args._owner, accounts[0]);
     assert.equal(logs[0].args._spender, accounts[1]);
-    assert.strictEqual(logs[0].args._amount.toNumber(), 100);
+    assert.strictEqual(logs[0].args._value.toNumber(), 100);
 
     assert.strictEqual(
       (await strc.allowance.call(accounts[0], accounts[1])).toNumber(),
@@ -164,6 +164,32 @@ contract("STRC", function(accounts) {
     await strc.transferFrom.call(accounts[0], accounts[2], 60, {
       from: accounts[1]
     });
+    assert.equal(
+      (await strc.balanceOf.call(accounts[0])).toNumber(),
+      100000000000000000000
+    );
+  });
+
+  it("approvals: msg.sender approves accounts[1] of 100 & withdraws 50 & 60 (2nd tx should fail)", async () => {
+    await strc.approve(accounts[1], 100, { from: accounts[0] });
+    await strc.transferFrom(accounts[0], accounts[2], 50, {
+      from: accounts[1]
+    });
+    assert.strictEqual(
+      (await strc.allowance.call(accounts[0], accounts[1])).toNumber(),
+      50
+    );
+
+    assert.strictEqual((await strc.balanceOf.call(accounts[2])).toNumber(), 50);
+
+    assert.equal(
+      (await strc.balanceOf.call(accounts[0])).toNumber(),
+      100000000000000000000
+    );
+    await strc.transferFrom.call(accounts[0], accounts[2], 60, {
+      from: accounts[1]
+    });
+    assert.strictEqual((await strc.balanceOf.call(accounts[2])).toNumber(), 50);
     assert.equal(
       (await strc.balanceOf.call(accounts[0])).toNumber(),
       100000000000000000000

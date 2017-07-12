@@ -60,7 +60,7 @@ contract("GTKT", function(accounts) {
     );
   });
 
-  // APPROVALS
+  // APPROVALS 
   it("approvals: msg.sender should approve 100 to accounts[1]", async () => {
     watcher = gtkt.Approval();
     await gtkt.approve(accounts[1], 100, { from: accounts[0] });
@@ -68,7 +68,7 @@ contract("GTKT", function(accounts) {
     assert.equal(logs[0].event, "Approval");
     assert.equal(logs[0].args._owner, accounts[0]);
     assert.equal(logs[0].args._spender, accounts[1]);
-    assert.strictEqual(logs[0].args._amount.toNumber(), 100);
+    assert.strictEqual(logs[0].args._value.toNumber(), 100);
 
     assert.strictEqual(
       (await gtkt.allowance.call(accounts[0], accounts[1])).toNumber(),
