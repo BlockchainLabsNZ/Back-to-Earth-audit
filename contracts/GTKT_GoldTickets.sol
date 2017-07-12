@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 /**
  * Authors: Justin Jones, Marshall Stokes
@@ -76,8 +76,8 @@ contract StandardMintableToken is owned{
 
     /* Send tokens */
     function transfer(address _to, uint256 _value) returns (bool success){
-        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
-        if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough
+        if (_value == 0) return false; 				             // Don't waste gas on zero-value transaction
+        if (balanceOf[msg.sender] < _value) return false;    // Check if the sender has enough
         if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows
         if (frozenAccount[msg.sender]) throw;                // Check if sender frozen
         if (frozenAccount[_to]) throw;                       // Check if recipient frozen                 
@@ -91,7 +91,7 @@ contract StandardMintableToken is owned{
     function approve(address _spender, uint256 _value)
         returns (bool success) {
         allowance[msg.sender][_spender] = _value;            // Update allowance first
-        Approval(msg.sender, _spender, _value);             // Notify of new Approval
+        Approval(msg.sender, _spender, _value);              // Notify of new Approval
         return true;
     }
 
@@ -109,7 +109,7 @@ contract StandardMintableToken is owned{
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
         if (frozenAccount[_from]) throw;                        // Check if sender frozen       
         if (frozenAccount[_to]) throw;                          // Check if recipient frozen                 
-        if (balanceOf[_from] < _value) throw;                   // Check if the sender has enough
+        if (balanceOf[_from] < _value) return false;          	// Check if the sender has enough
         if (balanceOf[_to] + _value < balanceOf[_to]) throw;    // Check for overflows
         if (_value > allowance[_from][msg.sender]) throw;       // Check allowance
         balanceOf[_from] -= _value;                             // Subtract from the sender
@@ -131,8 +131,8 @@ contract StandardMintableToken is owned{
     
     function burn(uint256 _value) returns (bool success) {
         if (frozenAccount[msg.sender]) throw;                 // Check if sender frozen       
-        if (_value == 0) throw; 				              // Don't waste gas on zero-value transaction
-        if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
+        if (_value == 0) return false; 				          // Don't waste gas on zero-value transaction
+        if (balanceOf[msg.sender] < _value) return false;     // Check if the sender has enough
         balanceOf[msg.sender] -= _value;                      // Subtract from the sender
         totalSupply -= _value;                                // Updates totalSupply
         Transfer(msg.sender,0, _value);	                      // Burn _value tokens
@@ -142,8 +142,8 @@ contract StandardMintableToken is owned{
     function burnFrom(address _from, uint256 _value) onlyOwner returns (bool success) {
         if (frozenAccount[msg.sender]) throw;                // Check if sender frozen       
         if (frozenAccount[_from]) throw;                     // Check if recipient frozen 
-        if (_value == 0) throw; 				             // Don't waste gas on zero-value transaction
-        if (balanceOf[_from] < _value) throw;                // Check if the sender has enough
+        if (_value == 0) return false; 			             // Don't waste gas on zero-value transaction
+        if (balanceOf[_from] < _value) return false;         // Check if the sender has enough
         if (_value > allowance[_from][msg.sender]) throw;    // Check allowance
         balanceOf[_from] -= _value;                          // Subtract from the sender
         totalSupply -= _value;                               // Updates totalSupply
@@ -155,10 +155,11 @@ contract StandardMintableToken is owned{
     /* A function to add more tokens to the total supply, accessible only to owner*/
     
     function mintToken(address target, uint256 mintedAmount) onlyOwner {
+        if (balanceOf[target] + mintedAmount < balanceOf[target]) throw; // Check for overflows
         balanceOf[target] += mintedAmount;
         totalSupply += mintedAmount;
-        Transfer(0, this, mintedAmount);
-        Transfer(this, target, mintedAmount);
+        Transfer(0, target, mintedAmount);
+
     }
     
 }
