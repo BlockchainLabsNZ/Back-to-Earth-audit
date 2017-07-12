@@ -1,6 +1,7 @@
 //let MiniMeTokenFactory = artifacts.require("MiniMeTokenFactory");
 let STRC = artifacts.require("StandardToken");
 const BigNumber = require("bignumber.js");
+const assertFail = require("../helpers/assertFail");
 
 let strc;
 
@@ -150,8 +151,10 @@ contract("STRC", function(accounts) {
       (await strc.balanceOf.call(accounts[0])).toNumber(),
       100000000000000000000
     );
-    await strc.transferFrom.call(accounts[0], accounts[2], 60, {
-      from: accounts[1]
+    await assertFail(async () => {
+      await strc.transferFrom.call(accounts[0], accounts[2], 60, {
+        from: accounts[1]
+      });
     });
     assert.strictEqual((await strc.balanceOf.call(accounts[2])).toNumber(), 50);
     assert.equal(
@@ -161,9 +164,12 @@ contract("STRC", function(accounts) {
   });
 
   it("approvals: attempt withdrawal from account with no allowance (should fail)", async () => {
-    await strc.transferFrom.call(accounts[0], accounts[2], 60, {
-      from: accounts[1]
+    await assertFail(async () => {
+      await strc.transferFrom.call(accounts[0], accounts[2], 60, {
+        from: accounts[1]
+      });
     });
+
     assert.equal(
       (await strc.balanceOf.call(accounts[0])).toNumber(),
       100000000000000000000
@@ -186,8 +192,10 @@ contract("STRC", function(accounts) {
       (await strc.balanceOf.call(accounts[0])).toNumber(),
       100000000000000000000
     );
-    await strc.transferFrom.call(accounts[0], accounts[2], 60, {
-      from: accounts[1]
+    await assertFail(async () => {
+      await strc.transferFrom.call(accounts[0], accounts[2], 60, {
+        from: accounts[1]
+      });
     });
     assert.strictEqual((await strc.balanceOf.call(accounts[2])).toNumber(), 50);
     assert.equal(
@@ -202,8 +210,10 @@ contract("STRC", function(accounts) {
       from: accounts[1]
     });
     await strc.approve(accounts[1], 0, { from: accounts[0] });
-    await strc.transferFrom.call(accounts[0], accounts[2], 10, {
-      from: accounts[1]
+    await assertFail(async () => {
+      await strc.transferFrom.call(accounts[0], accounts[2], 10, {
+        from: accounts[1]
+      });
     });
     assert.equal(
       (await strc.balanceOf.call(accounts[0])).toNumber(),

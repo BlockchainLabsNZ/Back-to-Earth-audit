@@ -49,11 +49,11 @@ contract("STRC", function(accounts) {
   });
 
   it("User shouldn't be able to burn more tokens than they have", async () => {
-    await assertFail(async () => {
-      await strc.burn(99999, {
-        from: accounts[1]
-      });
+    await strc.burn(99999, {
+      from: accounts[1]
     });
+
+    assert.equal((await strc.balanceOf.call(accounts[1])).toNumber(), 50000);
   });
 
   it("User shouldn't be able to double burn their tokens", async () => {
@@ -62,11 +62,12 @@ contract("STRC", function(accounts) {
     });
 
     assert.equal((await strc.balanceOf.call(accounts[1])).toNumber(), 0);
-    await assertFail(async () => {
-      await strc.burn(50000, {
-        from: accounts[1]
-      });
+
+    await strc.burn(50000, {
+      from: accounts[1]
     });
+    
+    assert.equal((await strc.balanceOf.call(accounts[1])).toNumber(), 0);
   });
 
   /*
