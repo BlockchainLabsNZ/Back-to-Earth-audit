@@ -8,27 +8,28 @@ let contribution;
 contract("GTKT", function(accounts) {
   beforeEach(async () => {
     gtkt = await GTKT.new(
-        "Gold Ticket",               // the token name
-        8,             // amount of decimal places in the token
-        "GTKT",             // the token symbol
-        100000000000000000000           // the initial distro amount
+        "Gold Ticket",             // the token name
+        8,                         // amount of decimal places in the token
+        "GTKT",                    // the token symbol
+        10000000000                // the initial distro amount
         );
   });
 
-  it("Controler and only controler can mint", async () => {
-    await gtkt.mintToken(accounts[0], 100);
-    assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 100);
+  it("Owner can mint", async () => {
+    await gtkt.mintToken(accounts[1], 100);
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 100);
 
-    //await gtkt.changeController(contribution.address);
-    //await contribution.initialize(gtkt.address);
+    assert.equal((await gtkt.totalSupply.call()).toNumber(), 10000000000 + 100);
+  });
 
-    //await assertFail(async () => {
-    //  await gtkt.mintToken(accounts[0], 50000);
-    //});
+  it("Only owner can mint", async () => {
+    await assertFail(async () => {
+        await gtkt.mintToken(accounts[1], 100, {
+            from: accounts[1]
+        });
+    });
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
 
-    //assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 100);
-
-    //await contribution.proxyPayment(accounts[0], { value: 50000 });
-    //assert.equal((await gtkt.balanceOf.call(accounts[0])).toNumber(), 50100);
+    assert.equal((await gtkt.totalSupply.call()).toNumber(), 10000000000);
   });
 });

@@ -42,11 +42,13 @@ contract("GTKT", function(accounts) {
   });
 
   it("User shouldn't be able to burn more tokens than they have", async () => {
-    await assertFail(async () => {
-      await gtkt.burn(99999, {
-        from: accounts[1]
-      });
+
+    await gtkt.burn(99999, {
+      from: accounts[1]
     });
+
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 50000);
+
   });
 
   it("User shouldn't be able to double burn their tokens", async () => {
@@ -55,11 +57,12 @@ contract("GTKT", function(accounts) {
     });
 
     assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
-    await assertFail(async () => {
-      await gtkt.burn(50000, {
-        from: accounts[1]
-      });
+
+    await gtkt.burn(50000, {
+      from: accounts[1]
     });
+
+    assert.equal((await gtkt.balanceOf.call(accounts[1])).toNumber(), 0);
   });
 
   /*
