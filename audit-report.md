@@ -14,7 +14,7 @@ The audit report is focused on the following key areas - though this is *not an 
 #### Correctness
 * No correctness defects uncovered during static analysis?
 * No implemented contract violations uncovered during execution?
-* No other generic incorrect behavior detected during execution?
+* No other generic incorrect behaviour detected during execution?
 * Adherence to adopted standards such as ERC20?
 
 #### Testability
@@ -50,8 +50,8 @@ The audit report is focused on the following key areas - though this is *not an 
  - ERC20 spec correctness 
   - `transfer` should return boolean true/false (Addressed in #4)
   - `Approval` event, which is triggered when `approve` is called: `event Approval(address indexed _owner, address indexed _spender, uint256 _value)` (Addressed in #4)
- - `mintToken` emmits the `Transfer` event twice, this can be simplifed to `Transfer(0, target, mintedAmount);` (Addressed in #5)
- - `throw`ing will consum all gas, consider returning in some cases to preserve the users gas (Addressed in #5)
+ - `mintToken` emits the `Transfer` event twice, this can be simplified to `Transfer(0, target, mintedAmount);` (Addressed in #5)
+ - `throw`ing will consume all gas, consider returning in some cases to preserve the users gas (Addressed in #5)
 
 #### Moderate
  - `burn` function doesn’t check whether the address is frozen, therefore it is possible to ‘melt’ the frozen tokens and thereby decrease the total supply (Addressed in #4)
