@@ -45,20 +45,22 @@ The audit report is focused on the following key areas - though this is *not an 
 
 ## Findings
 #### Minor
- - Latest version of solidity compiler is recommended (Addressed in #5)
- - `burn` `transfer` and `burnFrom` functions accept a value of 0 tokens, which is not correct as this will spend gas on a transaction that does not alter the state (First addressed in #3 and again in #5)
+ - Latest version of solidity compiler is recommended (Addressed in [#5](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/5))
+ - `burn` `transfer` and `burnFrom` functions accept a value of 0 tokens, which is not correct as this will spend gas on a transaction that does not alter the state (First addressed in [#3](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/3) and again in [#5](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/5))
  - ERC20 spec correctness 
-  - `transfer` should return boolean true/false (Addressed in #4)
-  - `Approval` event, which is triggered when `approve` is called: `event Approval(address indexed _owner, address indexed _spender, uint256 _value)` (Addressed in #4)
- - `mintToken` emits the `Transfer` event twice, this can be simplified to `Transfer(0, target, mintedAmount);` (Addressed in #5)
- - `throw`ing will consume all gas, consider returning in some cases to preserve the users gas (Addressed in #5)
+  - `transfer` should return boolean true/false (Addressed in [#4](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/4))
+  - `Approval` event, which is triggered when `approve` is called: `event Approval(address indexed _owner, address indexed _spender, uint256 _value)` (Addressed in [#4](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/4))
+ - `mintToken` emits the `Transfer` event twice, this can be simplified to `Transfer(0, target, mintedAmount);` (Addressed in [#5](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/5))
+ - `throw`ing will consume all gas, consider returning in some cases to preserve the users gas (Addressed in [#5](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/5))
 
 #### Moderate
- - `burn` function doesn’t check whether the address is frozen, therefore it is possible to ‘melt’ the frozen tokens and thereby decrease the total supply (Addressed in #4)
- - `mintToken` isn't checking for overflows (Addressed in #5)
+ - `burn` function doesn’t check whether the address is frozen, therefore it is possible to ‘melt’ the frozen tokens and thereby decrease the total supply (Addressed in [#4](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/4))
+ - `mintToken` isn't checking for overflows (Addressed in [#5](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/5))
 
 #### Major
- - `burnFrom` never decreases the allowance amount, this would allow someone with an allowance to burn all tokens belonging to that token holder. (Addressed in #3)
- - `burnFrom` should only be callable by the contract owner, otherwise anyone with an `allowance` from a token holder could `burnFrom` instead of `transferFrom` thereby decreasing the `totalSupply` (Addressed in #3)
+ - `burnFrom` never decreases the allowance amount, this would allow someone with an allowance to burn all tokens belonging to that token holder. (Addressed in [#3](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/3))
+ - `burnFrom` should only be callable by the contract owner, otherwise anyone with an `allowance` from a token holder could `burnFrom` instead of `transferFrom` thereby decreasing the `totalSupply` (Addressed in [#3](https://github.com/BlockchainLabsNZ/Back-to-Earth-audit/pull/3))
 
 #### Critical
+
+None found
